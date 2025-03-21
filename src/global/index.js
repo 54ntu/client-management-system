@@ -23,9 +23,22 @@ const projectStatus = {
   not_started: "not-started",
 };
 
+const paymentStatus = {
+  completed: "completed",
+  pending: "pending",
+};
+
+const paymentMethod = {
+  khalti: "khalti",
+  stripe: "stripe",
+  credit: "credit",
+};
+
 module.exports = {
   userRole,
   userStatus,
   projectPriority,
   projectStatus,
+  paymentStatus,
+  paymentMethod,
 };

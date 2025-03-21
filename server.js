@@ -73,7 +73,7 @@ io.on("connection", (socket) => {
           { $set: { status: "delivered" } }
         );
 
-  2
+        2;
       }
     });
   } else {
@@ -84,7 +84,7 @@ io.on("connection", (socket) => {
     const { receiver, message } = data;
     // console.log(`data :${data}`);
     const senderUser = onlineUsers.find((user) => user.socketId === socket.id);
-    // console.log(senderUser);
+    // console.log("sender data is : ", senderUser);
     if (!senderUser) {
       socket.emit("error", "user not authenticated");
       return;
@@ -93,7 +93,8 @@ io.on("connection", (socket) => {
     // console.log("receiver id is : ", receiver);
     const conversationId = await getOrCreateConversation(sender, receiver);
 
-    console.log("conversationid is :", conversationId);
+    // console.log("conversationid is :", conversationId);
+    // console.log("message data is : ", message);
 
     //save message into the database
     const newMessage = await Message.create({
