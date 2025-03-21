@@ -61,48 +61,76 @@ class PaymentController {
   }
 
   static async verifyPayment(req, res) {
-    const { pidx } = req.body;
-    //get the session id from req.query
-    const { session_id } = req.query;
-    let khaltiresponse = {};
-    let session = {};
+    try {
+      const { pidx } = req.body;
+      //get the session id from req.query
+      const { session_id } = req.query;
+      let khaltiresponse = {};
+      let session = {};
 
-    if (pidx) {
-      try {
-        const response = await axios.post(
-          "https://dev.khalti.com/api/v2/epayment/lookup/",
-          { pidx: pidx },
+      if (pidx) {
+        try {
+          const response = await axios.post(
+            "https://dev.khalti.com/api/v2/epayment/lookup/",
+            { pidx: pidx },
+            {
+              headers: {
+                Authorization: "key f1b854113d2c424f820427cadb100265",
+              },
+            }
+          );
+
+          // console.log(response);
+          khaltiresponse = response.data;
+        } catch (error) {
+          return res.status(500).json({
+            success: false,
+            message: "error verifying payment with khalti",
+            error: error.message,
+          });
+        }
+      }
+
+      // console.log("khaltiresponse : ", khaltiresponse);
+      if (khaltiresponse.status === "Completed") {
+        const updatedPayment = await Payment.findOneAndUpdate(
           {
-            headers: {
-              Authorization: "key f1b854113d2c424f820427cadb100265",
-            },
+            pidx: pidx,
+          },
+          {
+            paymentStatus: "completed",
+          },
+          {
+            new: true,
           }
         );
 
-        // console.log(response);
-        khaltiresponse = response.data;
-      } catch (error) {
-        return res.status(500).json({
-          success: false,
-          message: "error verifying payment with khalti",
-          error: error.message,
+        console.log("updatedPayment : ", updatedPayment.invoiceId);
+
+        const updatedInvoice = await Invoice.findOneAndUpdate(
+          updatedPayment.invoiceId,
+          {
+            status: "completed",
+          },
+          {
+            new: true,
+          }
+        );
+
+        return res.status(200).json({
+          success: true,
+          data: {
+            updatedPayment,
+            updatedInvoice,
+          },
+          message: "payment verified successfully",
         });
       }
-    }
-
-    // console.log("khaltiresponse : ", khaltiresponse);
-    if (khaltiresponse.status === "Completed") {
-      await Payment.findOneAndUpdate(
-        {
-          pidx: pidx,
-        },
-        {
-          paymentStatus: "completed",
-        },
-        {
-          new: true,
-        }
-      );
+    } catch (error) {
+      return res.status(500).json({
+        success: false,
+        message: error.message,
+      });
     }
   }
 }
