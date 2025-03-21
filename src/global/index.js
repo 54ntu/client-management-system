@@ -28,7 +28,7 @@ const paymentStatus = {
   pending: "pending",
 };
 
-const paymentMethod = {
+const paymentMethods = {
   khalti: "khalti",
   stripe: "stripe",
   credit: "credit",
@@ -40,5 +40,5 @@ module.exports = {
   projectPriority,
   projectStatus,
   paymentStatus,
-  paymentMethod,
+  paymentMethods,
 };

@@ -12,6 +12,7 @@ const { customerRepRouter } = require("./src/routes/customerRep.routes");
 const { complaintRouter } = require("./src/routes/complaint.routes");
 const { chatRouter } = require("./src/routes/chat.routes");
 const { invoiceRouter } = require("./src/routes/invoice.routes");
+const { paymentRouter } = require("./src/routes/payment.routes");
 const app = express();
 
 app.use(express.json());
@@ -50,5 +51,8 @@ app.use("/api/v1/chat", chatRouter);
 
 //routes for invoice
 app.use("/api/v1/invoice", invoiceRouter);
+
+//routes for payment
+app.use("/api/v1/payment", paymentRouter);
 
 module.exports = { app };

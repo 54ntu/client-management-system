@@ -1,5 +1,5 @@
 const mongoose = require("mongoose");
-const { paymentMethod, paymentStatus } = require("../global");
+const { paymentStatus, paymentMethods } = require("../global");
 
 const paymentSchema = new mongoose.Schema(
   {
@@ -18,11 +18,16 @@ const paymentSchema = new mongoose.Schema(
 
     paymentMethod: {
       type: String,
-      enum: [paymentMethod.khalti, paymentMethod.stripe, paymentMethod.credit],
+      enum: [
+        paymentMethods.khalti,
+        paymentMethods.stripe,
+        paymentMethods.credit,
+      ],
     },
     paymentStatus: {
       type: String,
       enum: [paymentStatus.completed, paymentStatus.pending],
+      default: paymentStatus.pending,
     },
     pidx: {
       type: String,
