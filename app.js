@@ -11,6 +11,7 @@ const {
 const { customerRepRouter } = require("./src/routes/customerRep.routes");
 const { complaintRouter } = require("./src/routes/complaint.routes");
 const { chatRouter } = require("./src/routes/chat.routes");
+const { invoiceRouter } = require("./src/routes/invoice.routes");
 const app = express();
 
 app.use(express.json());
@@ -46,5 +47,8 @@ app.use("/api/v1/complaint", complaintRouter);
 
 //routes for chat history
 app.use("/api/v1/chat", chatRouter);
+
+//routes for invoice
+app.use("/api/v1/invoice", invoiceRouter);
 
 module.exports = { app };

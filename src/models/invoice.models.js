@@ -5,7 +5,11 @@ const invoiceSchema = new mongoose.Schema(
   {
     clientId: {
       type: mongoose.Schema.Types.ObjectId,
-      ref: "Client",
+      ref: "User",
+    },
+    createdBy: {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: "User",
     },
     projectName: {
       type: String,
