@@ -32,6 +32,9 @@ const paymentSchema = new mongoose.Schema(
     pidx: {
       type: String,
     },
+    sessionId: {
+      type: String,
+    },
   },
   { timestamps: true }
 );

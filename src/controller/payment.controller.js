@@ -3,6 +3,9 @@ const { Payment } = require("../models/payment.models");
 const { paymentMethods, paymentStatus } = require("../global");
 const { default: axios } = require("axios");
 const { Invoice } = require("../models/invoice.models");
+const { envConfig } = require("../config/config");
+const Stripe = require("stripe");
+const stripe = new Stripe(envConfig.stripe_key_secret);
 
 class PaymentController {
   static async makePayment(req, res) {
@@ -51,6 +54,40 @@ class PaymentController {
           success: true,
           data: khaltiresponse,
         });
+      } else if (paymentMethod === paymentMethods.stripe) {
+        const lineItems = [
+          {
+            price_data: {
+              currency: "usd",
+              product_data: {
+                name: "projectPayment",
+              },
+              unit_amount: amount * 100,
+            },
+            quantity: 1,
+          },
+        ];
+
+        const session = await stripe.checkout.sessions.create({
+          payment_method_types: ["card"],
+          line_items: lineItems,
+          mode: "payment",
+          customer_email: req.user?.email,
+          metadata: {
+            paymentId: paymentMade._id.toString(),
+          },
+          success_url: "http://localhost:5173/success",
+          cancel_url: "http://localhost:5173/cancel",
+        });
+
+        paymentMade.sessionId = session.id;
+        await paymentMade.save();
+
+        return res.status(200).json({
+          success: true,
+          sessionId: session.id,
+          url: session.url,
+        });
       }
     } catch (error) {
       return res.status(500).json({
@@ -89,13 +126,28 @@ class PaymentController {
             error: error.message,
           });
         }
+      } else if (session_id) {
+        try {
+          //handle stripe verify-payment
+          session = await stripe.checkout.sessions.retrieve(session_id);
+          console.log("session ", session);
+        } catch (error) {
+          return res.status(500).json({
+            success: false,
+            message: "error verifying payment with stripe",
+            error: error.message,
+          });
+        }
       }
 
       // console.log("khaltiresponse : ", khaltiresponse);
-      if (khaltiresponse.status === "Completed") {
+      if (
+        khaltiresponse.status === "Completed" ||
+        session?.payment_status === "paid"
+      ) {
         const updatedPayment = await Payment.findOneAndUpdate(
           {
-            pidx: pidx,
+            $or: [{ pidx: pidx }, { sessionId: session_id }],
           },
           {
             paymentStatus: "completed",
@@ -124,6 +176,11 @@ class PaymentController {
             updatedInvoice,
           },
           message: "payment verified successfully",
+        });
+      } else if (khaltiresponse.status === "Pending") {
+        return res.status(403).json({
+          success: false,
+          message: "please make payment first",
         });
       }
     } catch (error) {
