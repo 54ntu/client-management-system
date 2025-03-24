@@ -13,6 +13,9 @@ const { complaintRouter } = require("./src/routes/complaint.routes");
 const { chatRouter } = require("./src/routes/chat.routes");
 const { invoiceRouter } = require("./src/routes/invoice.routes");
 const { paymentRouter } = require("./src/routes/payment.routes");
+const {
+  clientDashboardRouter,
+} = require("./src/routes/clientDashboard.routes");
 const app = express();
 
 app.use(express.json());
@@ -54,5 +57,8 @@ app.use("/api/v1/invoice", invoiceRouter);
 
 //routes for payment
 app.use("/api/v1/payment", paymentRouter);
+
+//routes for client dashboard controller
+app.use("/api/v1/client-dashboard", clientDashboardRouter);
 
 module.exports = { app };
