@@ -16,6 +16,7 @@ const { paymentRouter } = require("./src/routes/payment.routes");
 const {
   clientDashboardRouter,
 } = require("./src/routes/clientDashboard.routes");
+const { clientTimeLineRouter } = require("./src/routes/clientTimeline.routes");
 const app = express();
 
 app.use(express.json());
@@ -60,5 +61,8 @@ app.use("/api/v1/payment", paymentRouter);
 
 //routes for client dashboard controller
 app.use("/api/v1/client-dashboard", clientDashboardRouter);
+
+//routes for client timeline controller
+app.use("/api/v1/client-timeline", clientTimeLineRouter);
 
 module.exports = { app };
