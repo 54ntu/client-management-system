@@ -1,5 +1,5 @@
 const mongoose = require("mongoose");
-const { projectPriority, projectStatus } = require("../global");
+const { projectPriority, projectStatus, paymentStatus } = require("../global");
 
 const projectSchema = new mongoose.Schema(
   {
@@ -54,6 +54,11 @@ const projectSchema = new mongoose.Schema(
         projectStatus.not_started,
       ],
       default: projectStatus.not_started,
+    },
+
+    paymentStatus: {
+      type: String,
+      enum: [paymentStatus.completed, paymentStatus.pending],
     },
   },
   { timestamps: true }
