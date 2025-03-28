@@ -17,6 +17,9 @@ const {
   clientDashboardRouter,
 } = require("./src/routes/clientDashboard.routes");
 const { clientTimeLineRouter } = require("./src/routes/clientTimeline.routes");
+const {
+  conversionCommitteeRouter,
+} = require("./src/routes/conversionCommittee.routes");
 const app = express();
 
 app.use(express.json());
@@ -64,5 +67,8 @@ app.use("/api/v1/client-dashboard", clientDashboardRouter);
 
 //routes for client timeline controller
 app.use("/api/v1/client-timeline", clientTimeLineRouter);
+
+//routes for conversion committee
+app.use("/api/v1/conversion-dashboard", conversionCommitteeRouter);
 
 module.exports = { app };
