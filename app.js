@@ -20,6 +20,9 @@ const { clientTimeLineRouter } = require("./src/routes/clientTimeline.routes");
 const {
   conversionCommitteeRouter,
 } = require("./src/routes/conversionCommittee.routes");
+const {
+  conversionPaymentRouter,
+} = require("./src/routes/conversionCommitteePayment.routes");
 const app = express();
 
 app.use(express.json());
@@ -70,5 +73,8 @@ app.use("/api/v1/client-timeline", clientTimeLineRouter);
 
 //routes for conversion committee
 app.use("/api/v1/conversion-dashboard", conversionCommitteeRouter);
+
+//routes for conversion committee payment controller
+app.use("/api/v1/conversion-payment", conversionPaymentRouter);
 
 module.exports = { app };
