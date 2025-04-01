@@ -23,6 +23,7 @@ const {
 const {
   conversionPaymentRouter,
 } = require("./src/routes/conversionCommitteePayment.routes");
+const { chatbotRouter } = require("./src/routes/chatbot.routes");
 const app = express();
 
 app.use(express.json());
@@ -76,5 +77,8 @@ app.use("/api/v1/conversion-dashboard", conversionCommitteeRouter);
 
 //routes for conversion committee payment controller
 app.use("/api/v1/conversion-payment", conversionPaymentRouter);
+
+//routes for chatbot controller
+app.use("/api/v1/chat", chatbotRouter);
 
 module.exports = { app };
