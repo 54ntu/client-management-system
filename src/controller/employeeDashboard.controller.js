@@ -2,6 +2,8 @@ const { projectStatus } = require("../global");
 const { MilestoneTask } = require("../models/milestoneTask.models");
 const { ProjectMilestone } = require("../models/projectMilestone.models");
 const { ApiResponse } = require("../services/Apiresponse");
+const { Employee } = require("../models/employee.models");
+const { default: mongoose } = require("mongoose");
 class EmployeeDashboard {
   static async getUpcommingDeadlineMilestone(req, res) {
     try {
@@ -78,11 +80,11 @@ class EmployeeDashboard {
         },
         {
           $project: {
-            taskName: "taskTitle",
+            taskName: "$taskTitle",
             projectName: "$projectDetails.projectTitle",
-            due_date: "taskDueDate",
-            status: "taskStatus",
-            priority: "taskPriority",
+            due_date: "$taskDueDate",
+            status: "$taskStatus",
+            priority: "$taskPriority",
           },
         },
       ]);
@@ -112,7 +114,23 @@ class EmployeeDashboard {
 
   static async employeeDashboardSummary(req, res) {
     try {
+      const employeeId = req.user._id; // Get the employee ID from the request objec
+      const employeeExist = await Employee.findOne({
+        user: new mongoose.Types.ObjectId(employeeId),
+      });
+
+      if (!employeeExist) {
+        return res.status(404).json({
+          message: "employee not found",
+        });
+      }
+
       const taskSummary = await MilestoneTask.aggregate([
+        {
+          $match: {
+            employee: employeeExist._id,
+          },
+        },
         {
           $group: {
             _id: null,
@@ -125,7 +143,12 @@ class EmployeeDashboard {
 
       const inProgressTask = await MilestoneTask.aggregate([
         {
-          $match: { taskStatus: "in_progress" },
+          $match: {
+            $and: [
+              { taskStatus: "in_progress" },
+              { employee: employeeExist._id },
+            ],
+          },
         },
         {
           $group: {
@@ -139,7 +162,12 @@ class EmployeeDashboard {
 
       const completedTask = await MilestoneTask.aggregate([
         {
-          $match: { taskStatus: "completed" },
+          $match: {
+            $and: [
+              { taskStatus: "completed" },
+              { employee: employeeExist._id },
+            ],
+          },
         },
         {
           $group: {
@@ -153,7 +181,12 @@ class EmployeeDashboard {
 
       const notStartedTask = await MilestoneTask.aggregate([
         {
-          $match: { taskStatus: "not-started" },
+          $match: {
+            $and: [
+              { taskStatus: "not-started" },
+              { employee: employeeExist._id },
+            ],
+          },
         },
         {
           $group: {

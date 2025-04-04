@@ -12,7 +12,7 @@ const adminSeeder = async () => {
     });
     console.log("admin seeded successfully");
   } else {
-    console.log("please try again later");
+    console.log("please try again later || admin with email already seeded");
   }
 };
 

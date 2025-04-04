@@ -5,6 +5,7 @@ const { default: mongoose, isValidObjectId } = require("mongoose");
 const { response } = require("express");
 const { uploadOnCloudinary } = require("../services/cloudinary.services");
 const { ApiResponse } = require("../services/Apiresponse");
+const { Conversion } = require("../models/conversionCommittee.models");
 
 class CustomerRepresentativeController {
   static async addCustomerRepresentative(req, res) {
@@ -112,10 +113,11 @@ class CustomerRepresentativeController {
     try {
       const userId = req.user?._id;
       const userRole = req.user?.role;
+      console.log(userId, userRole);
       let conversionCommitteeExist;
       if (userRole === "conversion_committee") {
         conversionCommitteeExist = await Conversion.findOne({
-          _id: new mongoose.Types.ObjectId(userId),
+          user: new mongoose.Types.ObjectId(userId),
         });
       }
 
@@ -132,9 +134,9 @@ class CustomerRepresentativeController {
                 ? {
                     $expr: {
                       $eq: [
-                        "$admin",
+                        "$conversion",
                         new mongoose.Types.ObjectId(
-                          conversionCommitteeExist.admin
+                          conversionCommitteeExist._id
                         ),
                       ],
                     },
@@ -193,6 +195,7 @@ class CustomerRepresentativeController {
     try {
       console.log("hit vaye hoiii");
       const userid = req.user?._id;
+      const userRole = req.user?.role;
       const { id } = req.params;
       console.log(typeof id);
       if (!isValidObjectId(id)) {
@@ -206,9 +209,19 @@ class CustomerRepresentativeController {
 
       const { name, email, password, phone, address } = req.body;
 
+      let conversionCommitteeExist;
+      if (userRole !== "conversion_committee") {
+        conversionCommitteeExist = await Conversion.findOne({
+          user: new mongoose.Types.ObjectId(userid),
+        });
+      }
+
       const crDataExist = await CR.findOne({
         _id: new mongoose.Types.ObjectId(id),
-        admin: new mongoose.Types.ObjectId(userid),
+        $or: [
+          { admin: new mongoose.Types.ObjectId(userid) },
+          { conversion: conversionCommitteeExist?._id },
+        ],
       });
 
       if (!crDataExist) {
@@ -267,11 +280,22 @@ class CustomerRepresentativeController {
     session.startTransaction();
     try {
       const userid = req.user?._id;
+      const userRole = req.user?.role;
       const { id } = req.params;
+
+      let conversionCommitteeExist;
+      if (userRole !== "conversion_committee") {
+        conversionCommitteeExist = await Conversion.findOne({
+          user: new mongoose.Types.ObjectId(userid),
+        });
+      }
 
       const findCRdata = await CR.findOne({
         _id: id,
-        admin: new mongoose.Types.ObjectId(userid),
+        $or: [
+          { admin: new mongoose.Types.ObjectId(userid) },
+          { conversion: conversionCommitteeExist?._id },
+        ],
       });
 
       if (!findCRdata) {
@@ -301,7 +325,7 @@ class CustomerRepresentativeController {
       await session.abortTransaction();
       return res.status(500).json({
         success: false,
-        message: "Internal server error",
+        message: error.message,
       });
     } finally {
       session.endSession();

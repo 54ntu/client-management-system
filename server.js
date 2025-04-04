@@ -113,8 +113,13 @@ io.on("connection", (socket) => {
   });
 });
 
-adminSeeder();
-server.listen(envConfig.port, () => {
-  console.log(`server is listening at port ${envConfig.port}`);
-  connectdb();
-});
+connectdb()
+  .then(() => {
+    adminSeeder();
+    server.listen(envConfig.port, () => {
+      console.log(`server is listening at port ${envConfig.port}`);
+    });
+  })
+  .catch((err) => {
+    console.log("error in connecting to db", err);
+  });

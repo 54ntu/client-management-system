@@ -4,6 +4,7 @@ const { ApiResponse } = require("../services/Apiresponse");
 const { uploadOnCloudinary } = require("../services/cloudinary.services");
 const { MilestoneTask } = require("../models/milestoneTask.models");
 const { Employee } = require("../models/employee.models");
+const { Client } = require("../models/client.models");
 const { ProjectMilestone } = require("../models/projectMilestone.models");
 
 class ProjectController {
@@ -102,8 +103,17 @@ class ProjectController {
           projectManager: new mongoose.Types.ObjectId(userid),
         });
       } else if (userRole === "client") {
+        const clientExist = await Client.findOne({
+          user: new mongoose.Types.ObjectId(userid),
+        });
+
+        if (!clientExist) {
+          return res.status(404).json({
+            message: "client not found",
+          });
+        }
         projectData = await Project.find({
-          customerName: new mongoose.Types.ObjectId(userid),
+          customerName: clientExist._id,
         });
       } else if (userRole === "employee") {
         const employeeExist = await Employee.findOne({
